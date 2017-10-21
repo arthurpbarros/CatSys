@@ -1,8 +1,10 @@
-#include <stdio.h>
 
-int main() {
+#include "imagemutils.h"
 
+int main(int argc, char **argv) {
 
-    printf("Hello, OftaSys!\n");
+    Imagem img = abrirImagem(argv[1]);
+    printf("Altura: %d\tLargura: %d\n", img.altura, img.largura);
+
     return 0;
 }
