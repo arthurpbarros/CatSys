@@ -4,7 +4,7 @@
 
 void pegarPixels(Imagem *img) {
 
-    char aux[4] = "";
+    char aux[5] = "", *ptr;
     int i, j;
 
     for(i = 0; i < img->altura; i++) {
@@ -12,23 +12,12 @@ void pegarPixels(Imagem *img) {
             img->pixels[i][j].x = i;
             img->pixels[i][j].y = j;
 
-            fgets(aux, 4, img->stream);
-            aux[strlen(aux)] = '\0';
-            img->pixels[i][j].r = atoi(aux);
-            //printf("R: %s\n", aux);
-
-            getc(img->stream);
-
-            fgets(aux, 4, img->stream);
-            img->pixels[i][j].g = atoi(aux);
-            //printf("G: %s\n", aux);
-
-            getc(img->stream);
-
-            fgets(aux, 4, img->stream);
-            img->pixels[i][j].b = atoi(aux);
-            //printf("B: %s\n", aux);
-            getc(img->stream);
+            fgets(aux, 5, img->stream);
+            img->pixels[i][j].r = strtol(aux, &ptr, 10);
+            fgets(aux, 5, img->stream);
+            img->pixels[i][j].g = strtol(aux, &ptr, 10);
+            fgets(aux, 5, img->stream);
+            img->pixels[i][j].b = strtol(aux, &ptr, 10);
         }
     }
 }
@@ -39,7 +28,7 @@ Imagem abrirImagem(char *nome) {
     img.stream = fopen(nome, "r");
 
     if(img.stream == NULL) {
-        printf("Aconteceu algum problema ao abrir a imagem\ncaminho ou nome do arquivo incorreto\n");
+        fprintf(stderr, "Aconteceu algum problema ao abrir a imagem\ncaminho ou nome do arquivo incorreto\n");
         exit(1);
     }
 
@@ -59,6 +48,11 @@ Imagem abrirImagem(char *nome) {
     int i;
     for(i = 0; i < img.altura; i++) {
         img.pixels[i] = malloc(img.largura * sizeof(Pixel));
+    }
+
+    if(img.pixels == NULL || img.pixels[0] == NULL) {
+        fprintf(stderr, "O programa não conseguiu alocar memória suficiente para a imagem. Logo, teve que ser encerrado.");
+        exit(1);
     }
 
     pegarPixels(&img);
