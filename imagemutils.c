@@ -61,3 +61,22 @@ Imagem abrirImagem(char *nome) {
 
     return img;
 }
+
+void aplicarFiltroCinza(Imagem *img){
+    int i,j;
+    //FILE *output = fopen("Catarata.ppm","w");
+
+    //fprintf(output,"%s\n","P3");
+    //fprintf(output, "%d %d\n",img->altura,img->largura);
+
+    for(i = 0; i < img->altura; i++) {
+        for(j = 0; j < img->largura; j++) {
+            printf("antes %d\n",img->pixels[i][j].b);
+            img->pixels[i][j].r = ((int)1.3*(img->pixels[i][j].r) > 255)? 255: (int)1.3*(img->pixels[i][j].r);
+            img->pixels[i][j].g = ((int)1.59*(img->pixels[i][j].g) > 255)? 255: (int)1.59*(img->pixels[i][j].g);
+            img->pixels[i][j].b = ((int)1.11*(img->pixels[i][j].b) > 255)? 255: (int)1.11*(img->pixels[i][j].b);
+            //printf("depois %d\n",img->pixels[i][j].b);
+        }
+    }
+    //fclose(output);
+}
