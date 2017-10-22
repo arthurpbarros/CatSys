@@ -20,7 +20,7 @@ typedef struct _Imagem {
     Tipo tipo;
     Pixel **pixels;
 } Imagem;
-
+void aplicarFiltroCinza(Imagem *img);
 void pegarPixels(Imagem *img);
 Imagem abrirImagem(char *nome);
 
