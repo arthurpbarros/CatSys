@@ -10,11 +10,11 @@ void pegarPixels(Imagem *img) {
         for(j = 0; j < img->largura; j++) {
             img->pixels[i][j].x = i;
             img->pixels[i][j].y = j;
-            fgets(aux, 5, img->stream);
+            if(!fgets(aux, 5, img->stream)) return;
             img->pixels[i][j].r = strtol(aux, &ptr, 10);
-            fgets(aux, 5, img->stream);
+            if(!fgets(aux, 5, img->stream)) return;
             img->pixels[i][j].g = strtol(aux, &ptr, 10);
-            fgets(aux, 5, img->stream);
+            if(!fgets(aux, 5, img->stream)) return;
 
             img->pixels[i][j].b = strtol(aux, &ptr, 10);
         }
@@ -30,15 +30,15 @@ Imagem abrirImagem(char *nome) {
         exit(1);
     }
 
-    fgets(aux, 100, img.stream);
+    if(!fgets(aux, 100, img.stream)) exit(1);
     aux[strlen(aux) - 1] = '\0';
     if(strcmp(aux, "P3") == 0) {
         img.tipo = P3;
     }
 
-    fgets(aux, 100, img.stream);
+    if(!fgets(aux, 100, img.stream)) exit(1);
 
-    fgets(aux, 100, img.stream);
+    if(!fgets(aux, 100, img.stream)) exit(1);
     img.altura = atoi(strtok(aux, " "));
     img.largura = atoi(strtok(NULL, " "));
     img.pixels = malloc(img.altura * sizeof(Pixel *));
