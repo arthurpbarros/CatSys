@@ -69,10 +69,6 @@ void aplicarFiltroCinza(Imagem *img){
             img->pixels[i][j].r *= 1.3;
             img->pixels[i][j].g *= 1.59;
             img->pixels[i][j].b *= 1.11;
-            int cinza = img->pixels[i][j].r + img->pixels[i][j].g + img->pixels[i][j].b;
-            img->pixels[i][j].r = cinza;
-            img->pixels[i][j].g = cinza;
-            img->pixels[i][j].b = cinza;
             fprintf(output, "%d\n", img->pixels[i][j].r);
             fprintf(output, "%d\n", img->pixels[i][j].g);
             fprintf(output, "%d\n", img->pixels[i][j].b);
