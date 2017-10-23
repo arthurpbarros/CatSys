@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "imagemutils.h"
-
+#define A 1/159
 void pegarPixels(Imagem *img) {
     char aux[5] = "", *ptr;
     int i, j;
@@ -61,17 +61,15 @@ void aplicarFiltroCinza(Imagem *img){
     FILE *output = fopen("Catarata.ppm","w");
 
     fprintf(output,"%s\n","P3");
-    fprintf(output, "%d %d\n",img->altura,img->largura);
     fprintf(output, "%s\n", "# CREATOR: GIMP PNM Filter Version 1.1");
+    fprintf(output, "%d %d\n",img->altura,img->largura);
 
     for(i = 0; i < img->altura; i++) {
         for(j = 0; j < img->largura; j++) {
-            img->pixels[i][j].r *= 1.3;
-            img->pixels[i][j].g *= 1.59;
-            img->pixels[i][j].b *= 1.11;
-            fprintf(output, "%d\n", img->pixels[i][j].r);
-            fprintf(output, "%d\n", img->pixels[i][j].g);
-            fprintf(output, "%d\n", img->pixels[i][j].b);
+            int cinza = img->pixels[i][j].r * 1.3 + img->pixels[i][j].g * 1.59 + img->pixels[i][j].b * 1.11;
+            fprintf(output, "%d\n",cinza); //r
+            fprintf(output, "%d\n",cinza); //g
+            fprintf(output, "%d\n",cinza); //b
         }
     }
     fclose(output);

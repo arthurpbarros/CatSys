@@ -1,5 +1,5 @@
 #include "imagemutils.h"
-
+#include "matrizutils.h"
 int main(int argc, char *argv[]) {
     Imagem img = abrirImagem(argv[1]);
  	aplicarFiltroCinza(&img);
