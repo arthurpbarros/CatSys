@@ -9,7 +9,7 @@ LIBS = -lm
 
 all: libed app
 
-libed: $(OBJ)/imagemutils.o
+libed: $(OBJ)/imagemutils.o $(OBJ)/matrizutils.o
 
 app: $(BIN)/main
 
@@ -18,9 +18,7 @@ $(OBJ)/%.o: $(SRC)/%.c $(INCLUDE)/%.h
 
 $(BIN)/%: $(APPS)/%.c
 	gcc $(FLAGS) $< $(OBJ)/*.o -I $(INCLUDE) $(LIBS) -o $@
-
-run:
-	$(BIN)/main $(ARGS)
+	cp $@ catarata
 
 clean:
 	rm $(OBJ)/*.o

@@ -1,7 +1,6 @@
 #ifndef OFTASYS_IMAGEMUTILS_H
 #define OFTASYS_IMAGEMUTILS_H
 
-
 #include <stdio.h>
 
 typedef enum _Tipo {
