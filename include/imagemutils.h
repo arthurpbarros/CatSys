@@ -23,5 +23,6 @@ typedef struct _Imagem {
 Imagem abrirImagem(char *nome);
 void pegarPixels(Imagem *img);
 void aplicarFiltroCinza(Imagem *img);
+int Ires(int i,int j,Imagem *img);
 void aplicarSegmentacao(Imagem *img);
 #endif //OFTASYS_IMAGEMUTILS_H

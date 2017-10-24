@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../include/imagemutils.h"
-
-#define A 1/159
+#define A 159
 
 Imagem abrirImagem(char *nome) {
     Imagem img;
@@ -57,6 +56,7 @@ void pegarPixels(Imagem *img) {
     }
 }
 
+
 void aplicarFiltroCinza(Imagem *img){
     int i,j;
     FILE *output = fopen("Catarata.ppm","w");
@@ -67,16 +67,21 @@ void aplicarFiltroCinza(Imagem *img){
 
     for(i = 0; i < img->altura; i++) {
         for(j = 0; j < img->largura; j++) {
-            int cinza = img->pixels[i][j].r * 1.3 + img->pixels[i][j].g * 1.59 + img->pixels[i][j].b * 1.11;
-            fprintf(output, "%d\n", cinza);
-            fprintf(output, "%d\n", cinza);
-            fprintf(output, "%d\n", cinza);
+            img->pixels[i][j].r *= 1.3;
+            img->pixels[i][j].g *= 1.59;
+            img->pixels[i][j].b *= 1.11;
+            int cinza = img->pixels[i][j].r + img->pixels[i][j].g + img->pixels[i][j].b;
+            img->pixels[i][j].r = cinza;
+            img->pixels[i][j].g = cinza;
+            img->pixels[i][j].b = cinza;
+            fprintf(output, "%d\n", img->pixels[i][j].r);
+            fprintf(output, "%d\n", img->pixels[i][j].g);
+            fprintf(output, "%d\n", img->pixels[i][j].b);
         }
     }
     fclose(output);
 }
-
-void aplicarSegmentacao(Imagem *img){
+int Ires(int i,int j,Imagem *img){
     int f[5][5] = {
             {2,4,5,4,2},
             {4,9,12,9,4},
@@ -84,26 +89,31 @@ void aplicarSegmentacao(Imagem *img){
             {4,9,12,9,4},
             {2,4,5,4,2}
     };
-    int x,y,a,b;
+    int a,b;
+    int valor = 0;
+    for(a = -2;a <= 2;a++){
+        for(b = -2;b <= 2;b++){
+            if(j+a >= 0 && i+b >= 0 && j+a < img->largura && i+b < img->altura){
+                valor += (f[a+2][b+2]*img->pixels[i][j].r)/A;
+            }
+        }
+    }
+    return valor;
+}
+
+void aplicarSegmentacao(Imagem *img){
+
+    int i,j;
     FILE *output = fopen("Catarata.ppm","w");
 
     fprintf(output,"%s\n","P3");
-    fprintf(output, "%d %d\n",img->altura,img->largura);
     fprintf(output, "%s\n", "# CREATOR: GIMP PNM Filter Version 1.1");
+    fprintf(output, "%d %d\n",img->altura,img->largura);
+    
 
-    Imagem *nova;
-    for(a = -5/2; a <= 5/2;a++){
-        for(b = -5/2; b <= 5/2;b++){
-            for(y = 0;y < img->altura;y++){
-                for(x = 0;x < img->largura;x++){
-                    nova->pixels[x][y].r = f[a+5/2][b+5/2]*A*img->pixels[x+a][y+b].r;
-                    nova->pixels[x][y].g = f[a+5/2][b+5/2]*A*img->pixels[x+a][y+b].g;
-                    nova->pixels[x][y].b = f[a+5/2][b+5/2]*A*img->pixels[x+a][y+b].b;
-                    fprintf(output, "%d\n", nova->pixels[x][y].r);
-                    fprintf(output, "%d\n", nova->pixels[x][y].g);
-                    fprintf(output, "%d\n", nova->pixels[x][y].b);
-                }
-            }
+    for(i = 0;i < img->altura;i++){
+        for(j = 0; j < img->largura;j++){
+            fprintf(output, "%d\n%d\n%d\n", Ires(i,j,img),Ires(i,j,img),Ires(i,j,img));
         }
     }
     fclose(output);
