@@ -7,6 +7,7 @@ Imagem abrirImagem(char *nome) {
     Imagem img;
     char aux[100];
     img.stream = fopen(nome, "r");
+    //Verificação de erro na leitura da imagem
     if(img.stream == NULL) {
         fprintf(stderr, "Aconteceu algum problema ao abrir a imagem\ncaminho ou nome do arquivo incorreto\n");
         exit(1);
@@ -39,6 +40,7 @@ Imagem abrirImagem(char *nome) {
 }
 
 void pegarPixels(Imagem *img) {
+    //Funcão para captar os pixeis da imagem, apartir do seu arquivo
     char aux[5] = "", *ptr;
     int i, j;
 
@@ -58,6 +60,7 @@ void pegarPixels(Imagem *img) {
 
 
 void aplicarFiltroCinza(Imagem *img){
+    //Função para aplicar o filtro cinza nos pixeis.
     int i,j;
     FILE *output = fopen("Catarata.ppm","w");
 
@@ -67,13 +70,14 @@ void aplicarFiltroCinza(Imagem *img){
 
     for(i = 0; i < img->altura; i++) {
         for(j = 0; j < img->largura; j++) {
-            img->pixels[i][j].r *= 1.3;
-            img->pixels[i][j].g *= 1.59;
-            img->pixels[i][j].b *= 1.11;
+            img->pixels[i][j].r *= 1.3; //+30% no red
+            img->pixels[i][j].g *= 1.59;//+59% no green
+            img->pixels[i][j].b *= 1.11;//+11% no blue
             int cinza = img->pixels[i][j].r + img->pixels[i][j].g + img->pixels[i][j].b;
             img->pixels[i][j].r = cinza;
             img->pixels[i][j].g = cinza;
             img->pixels[i][j].b = cinza;
+            //Escrita temporária num arquivo, a título de teste.
             fprintf(output, "%d\n", img->pixels[i][j].r);
             fprintf(output, "%d\n", img->pixels[i][j].g);
             fprintf(output, "%d\n", img->pixels[i][j].b);
@@ -82,6 +86,7 @@ void aplicarFiltroCinza(Imagem *img){
     fclose(output);
 }
 int Ires(int i,int j,Imagem *img){
+    //Filtragem em determinado pixel passado como argumento 
     int f[5][5] = {
             {2,4,5,4,2},
             {4,9,12,9,4},
@@ -102,7 +107,7 @@ int Ires(int i,int j,Imagem *img){
 }
 
 void aplicarSegmentacao(Imagem *img){
-
+    //Aplicação de segmentação na imagem em tons de cinza.
     int i,j;
     FILE *output = fopen("Catarata.ppm","w");
 
@@ -110,7 +115,6 @@ void aplicarSegmentacao(Imagem *img){
     fprintf(output, "%s\n", "# CREATOR: GIMP PNM Filter Version 1.1");
     fprintf(output, "%d %d\n",img->altura,img->largura);
     
-
     for(i = 0;i < img->altura;i++){
         for(j = 0; j < img->largura;j++){
             fprintf(output, "%d\n%d\n%d\n", Ires(i,j,img),Ires(i,j,img),Ires(i,j,img));
