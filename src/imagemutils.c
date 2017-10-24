@@ -122,3 +122,15 @@ void aplicarSegmentacao(Imagem *img){
     }
     fclose(output);
 }
+
+/*void gravarImagem(Imagem *img){
+    FILE *output;
+    output = fopen("Catarata.ppm","w");
+    for(i = 0;i < img->altura;i++){
+        for(j = 0; j < img->largura;j++){
+            fprintf(output, "%d\n", img->pixels[i][j].r);
+            fprintf(output, "%d\n", img->pixels[i][j].g);
+            fprintf(output, "%d\n", img->pixels[i][j].b);
+        }
+    }
+}*/
