@@ -126,6 +126,9 @@ void aplicarSegmentacao(Imagem *img){
 /*void gravarImagem(Imagem *img){
     FILE *output;
     output = fopen("Catarata.ppm","w");
+    fprintf(output,"%s\n","P3");
+    fprintf(output, "%s\n", "# CREATOR: GIMP PNM Filter Version 1.1");
+    fprintf(output, "%d %d\n",img->altura,img->largura);
     for(i = 0;i < img->altura;i++){
         for(j = 0; j < img->largura;j++){
             fprintf(output, "%d\n", img->pixels[i][j].r);
@@ -133,4 +136,5 @@ void aplicarSegmentacao(Imagem *img){
             fprintf(output, "%d\n", img->pixels[i][j].b);
         }
     }
-}*/
+    fclose(output);
+}*/     
