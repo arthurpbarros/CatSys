@@ -9,7 +9,7 @@ LIBS = -lm
 
 all: libed app
 
-libed: $(OBJ)/imagemutils.o $(OBJ)/matrizutils.o
+libed: $(OBJ)/imagemutils.o $(OBJ)/excecoes.o
 
 app: $(BIN)/main
 

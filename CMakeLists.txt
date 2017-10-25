@@ -3,5 +3,5 @@ project(OftaSys)
 
 set(CMAKE_C_STANDARD 99)
 
-set(SOURCE_FILES apps/main.c src/imagemutils.c include/imagemutils.h src/matrizutils.c include/matrizutils.h)
+set(SOURCE_FILES apps/main.c src/imagemutils.c include/imagemutils.h src/excecoes.c include/excecoes.h)
 add_executable(OftaSys ${SOURCE_FILES})

@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../include/imagemutils.h"
+#include "../include/excecoes.h"
+
 #define A 159
 
 Imagem abrirImagem(char *nome) {
@@ -8,32 +10,27 @@ Imagem abrirImagem(char *nome) {
     char aux[100];
     img.stream = fopen(nome, "r");
     //Verificação de erro na leitura da imagem
-    if(img.stream == NULL) {
-        fprintf(stderr, "Aconteceu algum problema ao abrir a imagem\ncaminho ou nome do arquivo incorreto\n");
-        exit(1);
-    }
+    verificaStream(img.stream);
 
-    if(!fgets(aux, 100, img.stream)) exit(1);
+    verificaFgets(fgets(aux, 100, img.stream));
     aux[strlen(aux) - 1] = '\0';
     if(strcmp(aux, "P3") == 0) {
         img.tipo = P3;
     }
 
-    if(!fgets(aux, 100, img.stream)) exit(1);
+    verificaFgets(fgets(aux, 100, img.stream));
 
-    if(!fgets(aux, 100, img.stream)) exit(1);
+    verificaFgets(fgets(aux, 100, img.stream));
     img.altura = atoi(strtok(aux, " "));
     img.largura = atoi(strtok(NULL, " "));
+    verificaFgets(fgets(aux, 100, img.stream));
+    img.intervalo = atoi(aux);
     img.pixels = malloc(img.altura * sizeof(Pixel *));
     int i;
     for(i = 0; i < img.altura; i++) {
         img.pixels[i] = malloc(img.largura * sizeof(Pixel));
     }
-    if(img.pixels == NULL || img.pixels[0] == NULL) {
-        fprintf(stderr, "O programa não conseguiu alocar memória suficiente para a imagem. Logo, teve que ser encerrado.");
-        exit(1);
-    }
-
+    verificaAlocacaoPixels(&img);
     pegarPixels(&img);
     fclose(img.stream);
     return img;
@@ -48,42 +45,32 @@ void pegarPixels(Imagem *img) {
         for(j = 0; j < img->largura; j++) {
             img->pixels[i][j].x = i;
             img->pixels[i][j].y = j;
-            if(!fgets(aux, 5, img->stream)) exit(1);
+            verificaFgets(fgets(aux, 5, img->stream));
             img->pixels[i][j].r = strtol(aux, &ptr, 10);
-            if(!fgets(aux, 5, img->stream)) exit(1);
+            verificaFgets(fgets(aux, 5, img->stream));
             img->pixels[i][j].g = strtol(aux, &ptr, 10);
-            if(!fgets(aux, 5, img->stream)) exit(1);
+            verificaFgets(fgets(aux, 5, img->stream));
             img->pixels[i][j].b = strtol(aux, &ptr, 10);
         }
     }
 }
 
-
 void aplicarFiltroCinza(Imagem *img){
     //Função para aplicar o filtro cinza nos pixeis.
     int i,j;
-    FILE *output = fopen("Catarata.ppm","w");
-
-    fprintf(output,"%s\n","P3");
-    fprintf(output, "%s\n", "# CREATOR: GIMP PNM Filter Version 1.1");
-    fprintf(output, "%d %d\n",img->altura,img->largura);
-
     for(i = 0; i < img->altura; i++) {
         for(j = 0; j < img->largura; j++) {
-            img->pixels[i][j].r *= 1.3; //+30% no red
-            img->pixels[i][j].g *= 1.59;//+59% no green
-            img->pixels[i][j].b *= 1.11;//+11% no blue
+            img->pixels[i][j].r *= 0.3; //+30% no red
+            img->pixels[i][j].g *= 0.59;//+59% no green
+            img->pixels[i][j].b *= 0.11;//+11% no blue
             int cinza = img->pixels[i][j].r + img->pixels[i][j].g + img->pixels[i][j].b;
             img->pixels[i][j].r = cinza;
             img->pixels[i][j].g = cinza;
             img->pixels[i][j].b = cinza;
             //Escrita temporária num arquivo, a título de teste.
-            fprintf(output, "%d\n", img->pixels[i][j].r);
-            fprintf(output, "%d\n", img->pixels[i][j].g);
-            fprintf(output, "%d\n", img->pixels[i][j].b);
         }
     }
-    fclose(output);
+    gravarImagem(img);
 }
 int Ires(int i,int j,Imagem *img){
     //Filtragem em determinado pixel passado como argumento 
@@ -114,6 +101,7 @@ void aplicarSegmentacao(Imagem *img){
     fprintf(output,"%s\n","P3");
     fprintf(output, "%s\n", "# CREATOR: GIMP PNM Filter Version 1.1");
     fprintf(output, "%d %d\n",img->altura,img->largura);
+    fprintf(output, "%d\n", img->intervalo);
     
     for(i = 0;i < img->altura;i++){
         for(j = 0; j < img->largura;j++){
@@ -123,18 +111,20 @@ void aplicarSegmentacao(Imagem *img){
     fclose(output);
 }
 
-/*void gravarImagem(Imagem *img){
-    FILE *output;
-    output = fopen("Catarata.ppm","w");
-    fprintf(output,"%s\n","P3");
-    fprintf(output, "%s\n", "# CREATOR: GIMP PNM Filter Version 1.1");
-    fprintf(output, "%d %d\n",img->altura,img->largura);
+void gravarImagem(Imagem *img){
+    img->stream =  fopen("Catarata.ppm","w");
+    fprintf(img->stream,"%s\n","P3");
+    fprintf(img->stream, "%s\n", "# CREATOR: GIMP PNM Filter Version 1.1");
+    fprintf(img->stream, "%d %d\n",img->altura,img->largura);
+    fprintf(img->stream, "%d\n", img->intervalo);
+
+    int i, j;
     for(i = 0;i < img->altura;i++){
         for(j = 0; j < img->largura;j++){
-            fprintf(output, "%d\n", img->pixels[i][j].r);
-            fprintf(output, "%d\n", img->pixels[i][j].g);
-            fprintf(output, "%d\n", img->pixels[i][j].b);
+            fprintf(img->stream, "%d\n", img->pixels[i][j].r);
+            fprintf(img->stream, "%d\n", img->pixels[i][j].g);
+            fprintf(img->stream, "%d\n", img->pixels[i][j].b);
         }
     }
-    fclose(output);
-}*/     
+    fclose(img->stream);
+}

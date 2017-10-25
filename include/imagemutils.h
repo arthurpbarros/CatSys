@@ -14,7 +14,7 @@ typedef struct _Pixel {
 
 typedef struct _Imagem {
     char *nome;
-    int altura, largura;
+    int altura, largura, intervalo;
     FILE *stream;
     Tipo tipo;
     Pixel **pixels;
