@@ -7,7 +7,7 @@ SRC = ./src
 FLAGS = -O3 -Wall -std=c99
 LIBS = -lm
 
-all: libed app
+all: clean libed app 
 
 libed: $(OBJ)/imagemutils.o $(OBJ)/excecoes.o
 

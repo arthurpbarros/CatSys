@@ -3,7 +3,7 @@
 int main(int argc, char *argv[]) {
     Imagem img = abrirImagem(argv[1]);
     aplicarFiltroCinza(&img);
-    //aplicarSegmentacao(&img);
-    printf("Procesamento concluido.\n");
+    aplicarSegmentacao(img);
+    printf("Processamento concluído.\n");
     return 0;
 }

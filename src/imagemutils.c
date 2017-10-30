@@ -2,7 +2,6 @@
 #include <string.h>
 #include "../include/imagemutils.h"
 #include "../include/excecoes.h"
-
 #define A 159
 
 Imagem abrirImagem(char *nome) {
@@ -70,9 +69,10 @@ void aplicarFiltroCinza(Imagem *img){
             //Escrita temporária num arquivo, a título de teste.
         }
     }
-    gravarImagem(img);
+    printf("%d\n",img->pixels[0][1].r);
+    gravarImagem(img,"CatarataCinza.ppm");
 }
-int Ires(int i,int j,Imagem *img){
+int Ires(int i,int j,Imagem img){
     //Filtragem em determinado pixel passado como argumento 
     int f[5][5] = {
             {2,4,5,4,2},
@@ -82,37 +82,34 @@ int Ires(int i,int j,Imagem *img){
             {2,4,5,4,2}
     };
     int a,b;
-    int valor = 0;
+    long valor = 0;
     for(a = -2;a <= 2;a++){
         for(b = -2;b <= 2;b++){
-            if(j+a >= 0 && i+b >= 0 && j+a < img->largura && i+b < img->altura){
-                valor += (f[a+2][b+2]*img->pixels[i][j].r)/A;
+            if(j+a >= 0 && i+b >= 0 && j+a < img.largura && i+b < img.altura){
+                valor += (f[a+2][b+2]*img.pixels[i+b][j+a].r)/A;
             }
         }
     }
-    return valor;
+    return (int)valor;
 }
 
-void aplicarSegmentacao(Imagem *img){
+void aplicarSegmentacao(Imagem img){
     //Aplicação de segmentação na imagem em tons de cinza.
     int i,j;
-    FILE *output = fopen("Catarata.ppm","w");
-
-    fprintf(output,"%s\n","P3");
-    fprintf(output, "%s\n", "# CREATOR: GIMP PNM Filter Version 1.1");
-    fprintf(output, "%d %d\n",img->altura,img->largura);
-    fprintf(output, "%d\n", img->intervalo);
-    
-    for(i = 0;i < img->altura;i++){
-        for(j = 0; j < img->largura;j++){
-            fprintf(output, "%d\n%d\n%d\n", Ires(i,j,img),Ires(i,j,img),Ires(i,j,img));
+    Imagem nova = img;
+    for(i = 0;i < img.altura;i++){
+        for(j = 0; j < img.largura;j++){
+            int valor = Ires(i,j,img);
+            nova.pixels[i][j].r = valor;
+            nova.pixels[i][j].g = valor;
+            nova.pixels[i][j].b = valor;
         }
     }
-    fclose(output);
+    gravarImagem(&nova,"CatarataFiltro.ppm");
 }
 
-void gravarImagem(Imagem *img){
-    img->stream =  fopen("Catarata.ppm","w");
+void gravarImagem(Imagem *img,char *nome){
+    img->stream =  fopen(nome,"w");
     fprintf(img->stream,"%s\n","P3");
     fprintf(img->stream, "%s\n", "# CREATOR: GIMP PNM Filter Version 1.1");
     fprintf(img->stream, "%d %d\n",img->altura,img->largura);
