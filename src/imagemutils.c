@@ -68,6 +68,7 @@ void aplicarFiltroCinza(Imagem *img) {
             //Escrita temporária num arquivo, a título de teste.
         }
     }
+    //printf("Teste\n");
     gravarImagem(img, "CatarataCinza.ppm");
 }
 
@@ -124,4 +125,25 @@ void gravarImagem(Imagem *img, char *nome) {
         }
     }
     fclose(img->stream);
+}
+
+Imagem copiarImagem(Imagem *img) {
+    Imagem copia;
+    copia.tipo = img->tipo;
+    copia.altura = img->altura;
+    copia.largura = img->largura;
+    copia.intervalo = img->intervalo;
+    copia.pixels = malloc(copia.altura * sizeof(Pixel *));
+    int i, j;
+    for (i = 0; i < copia.altura; i++) {
+        copia.pixels[i] = malloc(copia.largura * sizeof(Pixel));
+        for (j = 0; j < copia.largura; j++) {
+            copia.pixels[i][j].x = img->pixels[i][j].x;
+            copia.pixels[i][j].y = img->pixels[i][j].y;
+            copia.pixels[i][j].r = img->pixels[i][j].r;
+            copia.pixels[i][j].g = img->pixels[i][j].g;
+            copia.pixels[i][j].b = img->pixels[i][j].b;
+        }
+    }
+    return copia;
 }
