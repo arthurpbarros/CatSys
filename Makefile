@@ -7,7 +7,7 @@ SRC = ./src
 FLAGS = -O3 -Wall -std=c99
 LIBS = -lm
 
-all: clean libed app 
+all: libed app copy
 
 libed: $(OBJ)/imagemutils.o $(OBJ)/excecoes.o
 
@@ -18,7 +18,9 @@ $(OBJ)/%.o: $(SRC)/%.c $(INCLUDE)/%.h
 
 $(BIN)/%: $(APPS)/%.c
 	gcc $(FLAGS) $< $(OBJ)/*.o -I $(INCLUDE) $(LIBS) -o $@
-	cp $@ catarata
+
+copy:
+	cp $(BIN)/main catarata
 
 clean:
 	rm $(OBJ)/*.o

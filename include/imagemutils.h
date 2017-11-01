@@ -24,6 +24,6 @@ Imagem abrirImagem(char *nome);
 void pegarPixels(Imagem *img);
 void aplicarFiltroCinza(Imagem *img);
 int Ires(int i,int j,Imagem img);
-void aplicarSegmentacao(Imagem img);
+void aplicarSegmentacao(Imagem *img);
 void gravarImagem(Imagem *img,char *nome);
 #endif //OFTASYS_IMAGEMUTILS_H
