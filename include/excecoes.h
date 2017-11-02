@@ -10,4 +10,4 @@ void verificaAlocacaoPixels(Imagem *img);
 void verificaFgets(char *fgets);
 void verificaArgumentos(int argc, char *argv[]);
 
-#endif //OFTASYS_EXCECOES_H
+#endif /*OFTASYS_EXCECOES_H*/

@@ -7,7 +7,7 @@ Imagem abrirImagem(char *nome) {
     Imagem img;
     char aux[100];
     img.stream = fopen(nome, "r");
-    //Verificação de erro na leitura da imagem
+    /*Verificação de erro na leitura da imagem*/
     verificaStream(img.stream);
 
     verificaFgets(fgets(aux, 100, img.stream));
@@ -35,7 +35,7 @@ Imagem abrirImagem(char *nome) {
 }
 
 void pegarPixels(Imagem *img) {
-    //Funcão para captar os pixeis da imagem, apartir do seu arquivo
+    /*Funcão para captar os pixeis da imagem, apartir do seu arquivo*/
     char aux[5] = "", *ptr;
     int i, j;
 
@@ -54,26 +54,25 @@ void pegarPixels(Imagem *img) {
 }
 
 void aplicarFiltroCinza(Imagem *img) {
-    //Função para aplicar o filtro cinza nos pixeis.
+    /*Função para aplicar o filtro cinza nos pixeis.*/
     int i, j;
     for (i = 0; i < img->altura; i++) {
         for (j = 0; j < img->largura; j++) {
-            img->pixels[i][j].r *= 0.3; //+30% no red
-            img->pixels[i][j].g *= 0.59;//+59% no green
-            img->pixels[i][j].b *= 0.11;//+11% no blue
+            img->pixels[i][j].r *= 0.3; /*+30% no red*/
+            img->pixels[i][j].g *= 0.59;/*+59% no green*/
+            img->pixels[i][j].b *= 0.11;/*+11% no blue*/
             int cinza = img->pixels[i][j].r + img->pixels[i][j].g + img->pixels[i][j].b;
             img->pixels[i][j].r = cinza;
             img->pixels[i][j].g = cinza;
             img->pixels[i][j].b = cinza;
-            //Escrita temporária num arquivo, a título de teste.
+            /*Escrita temporária num arquivo, a título de teste.*/
         }
     }
-    //printf("Teste\n");
     gravarImagem(img, "CatarataCinza.ppm");
 }
 
-int Ires(int i, int j, Imagem img) {
-    //Filtragem em determinado pixel passado como argumento
+int Ires(int i, int j, Imagem *img) {
+    /*Filtragem em determinado pixel passado como argumento*/
     int f[5][5] = {
             {2, 4,  5,  4,  2},
             {4, 9,  12, 9,  4},
@@ -86,21 +85,21 @@ int Ires(int i, int j, Imagem img) {
     int valor = 0;
     for (a = -2; a <= 2; a++) {
         for (b = -2; b <= 2; b++) {
-            if (j + a >= 0 && i + b >= 0 && j + a < img.largura && i + b < img.altura) {
-                valor += (f[a + 2][b + 2] * img.pixels[i + b][j + a].r) / constFiltro;
+            if (j + a >= 0 && i + b >= 0 && j + a < img->largura && i + b < img->altura) {
+                valor += (f[a + 2][b + 2] * img->pixels[i + b][j + a].r) / constFiltro;
             }
         }
     }
-    return (int) valor;
+    return valor;
 }
 
 void aplicarSegmentacao(Imagem *img) {
-    //Aplicação de segmentação na imagem em tons de cinza.
+    /*Aplicação de segmentação na imagem em tons de cinza.*/
     int i, j;
-    Imagem nova = *img;
+    Imagem nova = copiarImagem(img);
     for (i = 0; i < img->altura; i++) {
         for (j = 0; j < img->largura; j++) {
-            int valor = Ires(i, j, *img);
+            int valor = Ires(i, j, img);
             nova.pixels[i][j].r = valor;
             nova.pixels[i][j].g = valor;
             nova.pixels[i][j].b = valor;
