@@ -7,8 +7,13 @@ typedef enum _Tipo {
     P3
 } Tipo;
 
+typedef struct _Filtro {
+    int **kernel;
+    int tamanho;
+    float somaKernel;
+} Filtro;
+
 typedef struct _Pixel {
-    int x, y;
     int r, g, b;
 } Pixel;
 
@@ -23,9 +28,9 @@ typedef struct _Imagem {
 Imagem abrirImagem(char *nome);
 void pegarPixels(Imagem *img);
 void aplicarFiltroCinza(Imagem *img);
-int Ires(int i,int j,Imagem *img);
-void aplicarSegmentacao(Imagem *img);
 void gravarImagem(Imagem *img, char *nome);
 Imagem copiarImagem(Imagem *img);
+Filtro pegarFiltro(char *nome);
+void aplicarConvolucao(Imagem *img, Filtro *filtro);
 
 #endif /*OFTASYS_IMAGEMUTILS_H*/

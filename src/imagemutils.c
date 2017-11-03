@@ -19,8 +19,8 @@ Imagem abrirImagem(char *nome) {
     verificaFgets(fgets(aux, 100, img.stream));
 
     verificaFgets(fgets(aux, 100, img.stream));
-    img.altura = atoi(strtok(aux, " "));
-    img.largura = atoi(strtok(NULL, " "));
+    img.largura = atoi(strtok(aux, " "));
+    img.altura = atoi(strtok(NULL, " "));
     verificaFgets(fgets(aux, 100, img.stream));
     img.intervalo = atoi(aux);
     img.pixels = malloc(img.altura * sizeof(Pixel *));
@@ -41,14 +41,12 @@ void pegarPixels(Imagem *img) {
 
     for (i = 0; i < img->altura; i++) {
         for (j = 0; j < img->largura; j++) {
-            img->pixels[i][j].x = i;
-            img->pixels[i][j].y = j;
             verificaFgets(fgets(aux, 5, img->stream));
-            img->pixels[i][j].r = strtol(aux, &ptr, 10);
+            img->pixels[i][j].r = (int) strtol(aux, &ptr, 10);
             verificaFgets(fgets(aux, 5, img->stream));
-            img->pixels[i][j].g = strtol(aux, &ptr, 10);
+            img->pixels[i][j].g = (int) strtol(aux, &ptr, 10);
             verificaFgets(fgets(aux, 5, img->stream));
-            img->pixels[i][j].b = strtol(aux, &ptr, 10);
+            img->pixels[i][j].b = (int) strtol(aux, &ptr, 10);
         }
     }
 }
@@ -71,48 +69,11 @@ void aplicarFiltroCinza(Imagem *img) {
     gravarImagem(img, "CatarataCinza.ppm");
 }
 
-int Ires(int i, int j, Imagem *img) {
-    /*Filtragem em determinado pixel passado como argumento*/
-    int f[5][5] = {
-            {2, 4,  5,  4,  2},
-            {4, 9,  12, 9,  4},
-            {5, 12, 15, 12, 5},
-            {4, 9,  12, 9,  4},
-            {2, 4,  5,  4,  2}
-    };
-    const int constFiltro = 159;
-    int a, b;
-    int valor = 0;
-    for (a = -2; a <= 2; a++) {
-        for (b = -2; b <= 2; b++) {
-            if (j + a >= 0 && i + b >= 0 && j + a < img->largura && i + b < img->altura) {
-                valor += (f[a + 2][b + 2] * img->pixels[i + b][j + a].r) / constFiltro;
-            }
-        }
-    }
-    return valor;
-}
-
-void aplicarSegmentacao(Imagem *img) {
-    /*Aplicação de segmentação na imagem em tons de cinza.*/
-    int i, j;
-    Imagem nova = copiarImagem(img);
-    for (i = 0; i < img->altura; i++) {
-        for (j = 0; j < img->largura; j++) {
-            int valor = Ires(i, j, img);
-            nova.pixels[i][j].r = valor;
-            nova.pixels[i][j].g = valor;
-            nova.pixels[i][j].b = valor;
-        }
-    }
-    gravarImagem(&nova, "CatarataFiltro.ppm");
-}
-
 void gravarImagem(Imagem *img, char *nome) {
     img->stream = fopen(nome, "w");
     fprintf(img->stream, "%s\n", "P3");
     fprintf(img->stream, "%s\n", "# CREATOR: GIMP PNM Filter Version 1.1");
-    fprintf(img->stream, "%d %d\n", img->altura, img->largura);
+    fprintf(img->stream, "%d %d\n", img->largura, img->altura);
     fprintf(img->stream, "%d\n", img->intervalo);
 
     int i, j;
@@ -137,12 +98,79 @@ Imagem copiarImagem(Imagem *img) {
     for (i = 0; i < copia.altura; i++) {
         copia.pixels[i] = malloc(copia.largura * sizeof(Pixel));
         for (j = 0; j < copia.largura; j++) {
-            copia.pixels[i][j].x = img->pixels[i][j].x;
-            copia.pixels[i][j].y = img->pixels[i][j].y;
             copia.pixels[i][j].r = img->pixels[i][j].r;
             copia.pixels[i][j].g = img->pixels[i][j].g;
             copia.pixels[i][j].b = img->pixels[i][j].b;
         }
     }
     return copia;
+}
+
+void aplicarConvolucao(Imagem *img, Filtro *filtro) {
+    Imagem temp = copiarImagem(img);
+    int a, b, i, j;
+    for (i = 0; i < img->altura; i++) {
+        for (j = 0; j < img->largura; j++) {
+            float soma = 0;
+            for (a = -(filtro->tamanho / 2); a <= filtro->tamanho / 2; a++) {
+                for (b = -(filtro->tamanho / 2); b <= filtro->tamanho / 2; b++) {
+                    if (i - a >= 0 && j - b >= 0 && i - a < img->altura && j - b < img->largura) {
+                        soma += (filtro->kernel[a + filtro->tamanho / 2][b + filtro->tamanho / 2] *
+                                 img->pixels[i - a][j - b].r) / filtro->somaKernel;
+                    }
+                }
+            }
+            temp.pixels[i][j].r = (int) soma;
+            temp.pixels[i][j].g = (int) soma;
+            temp.pixels[i][j].b = (int) soma;
+        }
+    }
+    gravarImagem(&temp, "saida.ppm");
+}
+
+Filtro pegarFiltro(char *nome) {
+    Filtro filtro;
+    if (strcmp(nome, "gaussiano") == 0) {
+        filtro.tamanho = 5;
+        filtro.kernel = malloc(filtro.tamanho * sizeof(int *));
+        int i;
+        for (i = 0; i < filtro.tamanho; i++) {
+            filtro.kernel[i] = malloc(filtro.tamanho * sizeof(int));
+        }
+        filtro.kernel[0][0] = 2;
+        filtro.kernel[0][1] = 4;
+        filtro.kernel[0][2] = 5;
+        filtro.kernel[0][3] = 4;
+        filtro.kernel[0][4] = 2;
+        filtro.kernel[1][0] = 4;
+        filtro.kernel[1][1] = 9;
+        filtro.kernel[1][2] = 12;
+        filtro.kernel[1][3] = 9;
+        filtro.kernel[1][4] = 4;
+        filtro.kernel[2][0] = 5;
+        filtro.kernel[2][1] = 12;
+        filtro.kernel[2][2] = 15;
+        filtro.kernel[2][3] = 12;
+        filtro.kernel[2][4] = 5;
+        filtro.kernel[3][0] = 4;
+        filtro.kernel[3][1] = 9;
+        filtro.kernel[3][2] = 12;
+        filtro.kernel[3][3] = 9;
+        filtro.kernel[3][4] = 4;
+        filtro.kernel[4][0] = 2;
+        filtro.kernel[4][1] = 4;
+        filtro.kernel[4][2] = 5;
+        filtro.kernel[4][3] = 4;
+        filtro.kernel[4][4] = 2;
+        filtro.somaKernel = 159;
+        /*int k[5][5] = {
+                {2, 4,  5,  4,  2},
+                {4, 9,  12, 9,  4},
+                {5, 12, 15, 12, 5},
+                {4, 9,  12, 9,  4},
+                {2, 4,  5,  4,  2}
+        };*/
+        return filtro;
+    }
+    return filtro;
 }
