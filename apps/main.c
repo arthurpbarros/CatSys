@@ -8,6 +8,7 @@ int main(int argc, char *argv[]) {
     Filtro gaus = pegarFiltro(GAUSSIANO);
     img = aplicarConvolucao(&img, &gaus);
     img = aplicarFiltroSobel(&img);
+    img = aplicarBinarizacao(&img);
     gravarImagem(&img, "Saida.ppm");
     printf("Processamento concluído.\n");
     return 0;

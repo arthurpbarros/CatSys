@@ -64,7 +64,6 @@ Imagem aplicarFiltroCinza(Imagem *img) {
             img->pixels[i][j].r = cinza;
             img->pixels[i][j].g = cinza;
             img->pixels[i][j].b = cinza;
-            /*Escrita temporária num arquivo, a título de teste.*/
         }
     }
     return *img;
@@ -75,8 +74,11 @@ Imagem aplicarFiltroSobel(Imagem *img) {
     Filtro sobely = pegarFiltro(SOBELY);
     Imagem gx = aplicarConvolucao(img, &sobelx);
     Imagem gy = aplicarConvolucao(img, &sobely);
+    gravarImagem(&gx, "SobelX.ppm");
+    gravarImagem(&gy, "SobelY.ppm");
     Imagem saida = copiarImagem(img);
     int i, j;
+    float limiar = 0;
     for(i = 0; i < img->altura; i++) {
         for(j = 0; j < img->largura; j++) {
             int x = gx.pixels[i][j].r;
@@ -85,8 +87,10 @@ Imagem aplicarFiltroSobel(Imagem *img) {
             saida.pixels[i][j].r = pixel;
             saida.pixels[i][j].g = pixel;
             saida.pixels[i][j].b = pixel;
+            limiar += pixel;
         }
     }
+    saida.limiar = (int) limiar / (saida.altura * saida.largura);
     return saida;
 }
 
@@ -130,8 +134,8 @@ Imagem copiarImagem(Imagem *img) {
 Imagem aplicarConvolucao(Imagem *img, Filtro *filtro) {
     Imagem copia = copiarImagem(img);
     int a, b, i, j;
-    for (i = filtro->tamanho/2; i < img->altura - (filtro->tamanho/2); i++) {
-        for (j = filtro->tamanho/2; j < img->largura - (filtro->tamanho/2); j++) {
+    for (i = 0; i < img->altura; i++) {
+        for (j = 0; j < img->largura; j++) {
             float soma = 0;
             for (a = -(filtro->tamanho / 2); a <= filtro->tamanho / 2; a++) {
                 for (b = -(filtro->tamanho / 2); b <= filtro->tamanho / 2; b++) {
@@ -148,6 +152,24 @@ Imagem aplicarConvolucao(Imagem *img, Filtro *filtro) {
         }
     }
     return copia;
+}
+
+Imagem aplicarBinarizacao(Imagem *img) {
+    int i, j;
+    for(i = 0; i < img->altura; i++) {
+        for(j = 0; j < img->largura; j++) {
+            if(img->pixels[i][j].r > img->limiar) {
+                img->pixels[i][j].r = 255;
+                img->pixels[i][j].b = 255;
+                img->pixels[i][j].g = 255;
+                continue;
+            }
+            img->pixels[i][j].r = 0;
+            img->pixels[i][j].g = 0;
+            img->pixels[i][j].b = 0;
+        }
+    }
+    return *img;
 }
 
 Filtro pegarFiltro(TipoFiltro tipo) {

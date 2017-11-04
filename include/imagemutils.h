@@ -25,7 +25,7 @@ typedef struct _Pixel {
 
 typedef struct _Imagem {
     char *nome;
-    int altura, largura, intervalo;
+    int altura, largura, intervalo, limiar;
     FILE *stream;
     Tipo tipo;
     Pixel **pixels;
@@ -40,5 +40,6 @@ void gravarImagem(Imagem *img, char *nome);
 Imagem copiarImagem(Imagem *img);
 Filtro pegarFiltro(TipoFiltro tipo);
 Imagem aplicarConvolucao(Imagem *img, Filtro *filtro);
+Imagem aplicarBinarizacao(Imagem *img);
 
 #endif /*OFTASYS_IMAGEMUTILS_H*/
