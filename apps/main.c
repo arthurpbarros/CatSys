@@ -1,5 +1,5 @@
-#include "../include/imagemutils.h"
 #include "../include/excecoes.h"
+#include "../include/filtroutils.h"
 
 int main(int argc, char *argv[]) {
     verificaArgumentos(argc, argv);
@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
     img = aplicarConvolucao(&img, &gaus);
     img = aplicarFiltroSobel(&img);
     img = aplicarBinarizacao(&img);
-    gravarImagem(&img, "Saida.ppm");
+    gravarImagem(&img, "ImagemProcessada.ppm");
     printf("Processamento concluído.\n");
     return 0;
 }
