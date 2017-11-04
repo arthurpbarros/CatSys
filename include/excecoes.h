@@ -9,5 +9,6 @@ void verificaStream(FILE *stream);
 void verificaAlocacaoPixels(Imagem *img);
 void verificaFgets(char *fgets);
 void verificaArgumentos(int argc, char *argv[]);
+void filtroExcecao();
 
 #endif /*OFTASYS_EXCECOES_H*/

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "../include/imagemutils.h"
 #include "../include/excecoes.h"
 
@@ -51,7 +52,7 @@ void pegarPixels(Imagem *img) {
     }
 }
 
-void aplicarFiltroCinza(Imagem *img) {
+Imagem aplicarFiltroCinza(Imagem *img) {
     /*Função para aplicar o filtro cinza nos pixeis.*/
     int i, j;
     for (i = 0; i < img->altura; i++) {
@@ -66,7 +67,27 @@ void aplicarFiltroCinza(Imagem *img) {
             /*Escrita temporária num arquivo, a título de teste.*/
         }
     }
-    gravarImagem(img, "CatarataCinza.ppm");
+    return *img;
+}
+
+Imagem aplicarFiltroSobel(Imagem *img) {
+    Filtro sobelx = pegarFiltro(SOBELX);
+    Filtro sobely = pegarFiltro(SOBELY);
+    Imagem gx = aplicarConvolucao(img, &sobelx);
+    Imagem gy = aplicarConvolucao(img, &sobely);
+    Imagem saida = copiarImagem(img);
+    int i, j;
+    for(i = 0; i < img->altura; i++) {
+        for(j = 0; j < img->largura; j++) {
+            int x = gx.pixels[i][j].r;
+            int y = gy.pixels[i][j].r;
+            int pixel = (int) sqrt((x * x) + (y * y));
+            saida.pixels[i][j].r = pixel;
+            saida.pixels[i][j].g = pixel;
+            saida.pixels[i][j].b = pixel;
+        }
+    }
+    return saida;
 }
 
 void gravarImagem(Imagem *img, char *nome) {
@@ -106,11 +127,11 @@ Imagem copiarImagem(Imagem *img) {
     return copia;
 }
 
-void aplicarConvolucao(Imagem *img, Filtro *filtro) {
-    Imagem temp = copiarImagem(img);
+Imagem aplicarConvolucao(Imagem *img, Filtro *filtro) {
+    Imagem copia = copiarImagem(img);
     int a, b, i, j;
-    for (i = 0; i < img->altura; i++) {
-        for (j = 0; j < img->largura; j++) {
+    for (i = filtro->tamanho/2; i < img->altura - (filtro->tamanho/2); i++) {
+        for (j = filtro->tamanho/2; j < img->largura - (filtro->tamanho/2); j++) {
             float soma = 0;
             for (a = -(filtro->tamanho / 2); a <= filtro->tamanho / 2; a++) {
                 for (b = -(filtro->tamanho / 2); b <= filtro->tamanho / 2; b++) {
@@ -120,17 +141,18 @@ void aplicarConvolucao(Imagem *img, Filtro *filtro) {
                     }
                 }
             }
-            temp.pixels[i][j].r = (int) soma;
-            temp.pixels[i][j].g = (int) soma;
-            temp.pixels[i][j].b = (int) soma;
+            soma = abs(soma);
+            copia.pixels[i][j].r = (int) soma;
+            copia.pixels[i][j].g = (int) soma;
+            copia.pixels[i][j].b = (int) soma;
         }
     }
-    gravarImagem(&temp, "saida.ppm");
+    return copia;
 }
 
-Filtro pegarFiltro(char *nome) {
+Filtro pegarFiltro(TipoFiltro tipo) {
     Filtro filtro;
-    if (strcmp(nome, "gaussiano") == 0) {
+    if(tipo == GAUSSIANO) {
         filtro.tamanho = 5;
         filtro.kernel = malloc(filtro.tamanho * sizeof(int *));
         int i;
@@ -163,14 +185,44 @@ Filtro pegarFiltro(char *nome) {
         filtro.kernel[4][3] = 4;
         filtro.kernel[4][4] = 2;
         filtro.somaKernel = 159;
-        /*int k[5][5] = {
-                {2, 4,  5,  4,  2},
-                {4, 9,  12, 9,  4},
-                {5, 12, 15, 12, 5},
-                {4, 9,  12, 9,  4},
-                {2, 4,  5,  4,  2}
-        };*/
+        return filtro;
+    } else if(tipo == SOBELX) {
+        filtro.tamanho = 3;
+        filtro.kernel = malloc(filtro.tamanho * sizeof(int *));
+        int i;
+        for(i = 0; i < filtro.tamanho; i++) {
+            filtro.kernel[i] = malloc(filtro.tamanho * sizeof(int));
+        }
+        filtro.kernel[0][0] = -1;
+        filtro.kernel[0][1] = 0;
+        filtro.kernel[0][2] = 1;
+        filtro.kernel[1][0] = -2;
+        filtro.kernel[1][1] = 0;
+        filtro.kernel[1][2] = 2;
+        filtro.kernel[2][0] = -1;
+        filtro.kernel[2][1] = 0;
+        filtro.kernel[2][2] = 1;
+        filtro.somaKernel = 1;
+        return filtro;
+    } else if(tipo == SOBELY) {
+        filtro.tamanho = 3;
+        filtro.kernel = malloc(filtro.tamanho * sizeof(int *));
+        int i;
+        for(i = 0; i < filtro.tamanho; i++) {
+            filtro.kernel[i] = malloc(filtro.tamanho * sizeof(int));
+        }
+        filtro.kernel[0][0] = 1;
+        filtro.kernel[0][1] = 2;
+        filtro.kernel[0][2] = 1;
+        filtro.kernel[1][0] = 0;
+        filtro.kernel[1][1] = 0;
+        filtro.kernel[1][2] = 0;
+        filtro.kernel[2][0] = -1;
+        filtro.kernel[2][1] = -2;
+        filtro.kernel[2][2] = -1;
+        filtro.somaKernel = 1;
         return filtro;
     }
+    filtroExcecao();
     return filtro;
 }

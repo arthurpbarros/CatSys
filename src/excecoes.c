@@ -41,3 +41,8 @@ void verificaArgumentos(int argc, char *argv[]) {
             "-o <diagnose-file> indica o nome do arquivo texto contendo o diagnóstico.\n");
     fechar();
 }
+
+void filtroExcecao() {
+    fprintf(stderr, "Não foi possível encontrar o filtro.\n");
+    fechar();
+}
