@@ -20,5 +20,7 @@ Filtro pegarFiltro(TipoFiltro tipo);
 Imagem aplicarFiltroCinza(Imagem *img);
 Imagem aplicarFiltroSobel(Imagem *img);
 Imagem aplicarBinarizacao(Imagem *img);
+int pixelValido(Imagem *img);
+void AplicarHough(Imagem *img);
 
 #endif /*OFTASYS_FILTROUTILS_H*/

@@ -3,6 +3,8 @@
 #include "../include/filtroutils.h"
 #include "../include/excecoes.h"
 
+#define PI 3.141592
+
 Imagem aplicarConvolucao(Imagem *img, Filtro *filtro) {
     Imagem copia = copiarImagem(img);
     int a, b, i, j;
@@ -28,7 +30,7 @@ Imagem aplicarConvolucao(Imagem *img, Filtro *filtro) {
 
 Filtro pegarFiltro(TipoFiltro tipo) {
     Filtro filtro;
-    if(tipo == GAUSSIANO) {
+    if (tipo == GAUSSIANO) {
         filtro.tamanho = 5;
         filtro.kernel = malloc(filtro.tamanho * sizeof(int *));
         int i;
@@ -62,11 +64,11 @@ Filtro pegarFiltro(TipoFiltro tipo) {
         filtro.kernel[4][4] = 2;
         filtro.somaKernel = 159;
         return filtro;
-    } else if(tipo == SOBELX) {
+    } else if (tipo == SOBELX) {
         filtro.tamanho = 3;
         filtro.kernel = malloc(filtro.tamanho * sizeof(int *));
         int i;
-        for(i = 0; i < filtro.tamanho; i++) {
+        for (i = 0; i < filtro.tamanho; i++) {
             filtro.kernel[i] = malloc(filtro.tamanho * sizeof(int));
         }
         filtro.kernel[0][0] = -1;
@@ -80,11 +82,11 @@ Filtro pegarFiltro(TipoFiltro tipo) {
         filtro.kernel[2][2] = 1;
         filtro.somaKernel = 1;
         return filtro;
-    } else if(tipo == SOBELY) {
+    } else if (tipo == SOBELY) {
         filtro.tamanho = 3;
         filtro.kernel = malloc(filtro.tamanho * sizeof(int *));
         int i;
-        for(i = 0; i < filtro.tamanho; i++) {
+        for (i = 0; i < filtro.tamanho; i++) {
             filtro.kernel[i] = malloc(filtro.tamanho * sizeof(int));
         }
         filtro.kernel[0][0] = 1;
@@ -128,8 +130,8 @@ Imagem aplicarFiltroSobel(Imagem *img) {
     Imagem saida = copiarImagem(img);
     int i, j;
     float limiar = 0;
-    for(i = 0; i < img->altura; i++) {
-        for(j = 0; j < img->largura; j++) {
+    for (i = 0; i < img->altura; i++) {
+        for (j = 0; j < img->largura; j++) {
             int x = gx.pixels[i][j].r;
             int y = gy.pixels[i][j].r;
             int pixel = (int) sqrt((x * x) + (y * y));
@@ -145,9 +147,9 @@ Imagem aplicarFiltroSobel(Imagem *img) {
 
 Imagem aplicarBinarizacao(Imagem *img) {
     int i, j;
-    for(i = 0; i < img->altura; i++) {
-        for(j = 0; j < img->largura; j++) {
-            if(img->pixels[i][j].r > img->limiar) {
+    for (i = 0; i < img->altura; i++) {
+        for (j = 0; j < img->largura; j++) {
+            if (img->pixels[i][j].r > img->limiar) {
                 img->pixels[i][j].r = 255;
                 img->pixels[i][j].b = 255;
                 img->pixels[i][j].g = 255;
@@ -159,4 +161,63 @@ Imagem aplicarBinarizacao(Imagem *img) {
         }
     }
     return *img;
+}
+
+int pixelValido(Imagem *img) {
+    int pValidos = 0;
+    int i, j;
+    for (i = 0; i < img->altura; i++) {
+        for (j = 0; j < img->largura; j++) {
+            if (img->pixels[i][j].r == 255) {
+                pValidos++;
+            }
+        }
+    }
+    return pValidos;
+}
+
+void AplicarHough(Imagem *img) {
+    int r, t;
+    int a, b;
+    int maior = -1;
+    int rmax = 300, rmin = 200;
+    /*int validos = pixelValido(img);*/
+    int ***m;
+    int i, j;
+    /*FILE * f = fopen("text.txt", "w");*/
+    m = calloc(img->altura, sizeof(int **));
+
+    for (i = 0; i < img->altura; i++) {
+        m[i] = calloc(img->largura + 1, sizeof(int *));
+        for (j = 0; j < img->largura + 1; j++) {
+            m[i][j] = calloc(rmax - rmin + 1, sizeof(int));
+        }
+    }
+    for (i = rmin; i < img->altura - rmin; i++) {
+        for (j = rmin; j < img->largura - rmin; j++) {
+            if (img->pixels[i][j].r == 255) {
+                for (r = rmin; r <= rmax; r++) {
+                    for (t = 0; t < 360; t++) {
+                        a = abs(i - r * cos(t * PI / 180));
+                        b = abs(j - r * sin(t * PI / 180));
+                        if (a >= img->altura || b >= img->largura) {
+                            /*fprintf(f,"a = %d b = %d r = %d t = %d\n", a, b,r,t);*/
+                        } else {
+                            m[a][b][r - rmin]++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    printf("asdsad");
+    for (i = 0; i < img->altura; i++) {
+        for (j = 0; j < img->largura + 1; j++) {
+            for (r = 0; r <= rmax - rmin; r++) {
+                if (m[i][j][r] > maior) {
+                    maior = m[i][j][r];
+                }
+            }
+        }
+    }
 }
