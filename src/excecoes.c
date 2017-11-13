@@ -31,7 +31,8 @@ void verificaFgets(char *fgets) {
 
 void verificaArgumentos(int argc, char *argv[]) {
     if (argc == 7) {
-        if (strcmp(argv[1], "-i") == 0 && strcmp(argv[3], "-f") == 0 && strcmp(argv[5], "-o") == 0) {
+
+        if (strcmp(argv[1], "-i") == 0 && strcmp(argv[3], "-f") == 0 && strcmp(argv[5], "-o") == 0 && strcmp(argv[4], "ppm") == 0) {
             return;
         }
     }

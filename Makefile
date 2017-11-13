@@ -1,16 +1,30 @@
-SRC = ./src
+APPS = ./apps
+BIN = ./bin
 INCLUDE = ./include
 OBJ = ./obj
-FLAGS = -ansi -Wall -O3
+SRC = ./src
+
+FLAGS = -O3 -Wall -ansi
 LIBS = -lm
 
-all:
-	gcc $(FLAGS) -c $(SRC)/excecoes.c -I $(INCLUDE) $(LIBS) -o $(OBJ)/excecoes.o
-	gcc $(FLAGS) -c $(SRC)/imagemutils.c -I $(INCLUDE) $(LIBS) -o $(OBJ)/imagemutils.o
-	gcc $(FLAGS) -c $(SRC)/filtroutils.c -I $(INCLUDE) $(LIBS) -o $(OBJ)/filtroutils.o
-	gcc $(FLAGS) apps/main.c $(OBJ)/*.o -I $(INCLUDE) $(LIBS) -o bin/main
-	cp bin/main catarata
+OBJETOS = $(OBJ)/imagemutils.o $(OBJ)/excecoes.o $(OBJ)/filtroutils.o $(OBJ)/main.o
+
+all: libed app
+
+libed: $(OBJETOS)
+
+app: $(BIN)/main
+
+$(OBJ)/main.o: $(APPS)/main.c
+	gcc $(FLAGS) -c $< -I $(INCLUDE) $(LIBS) -o $@
+
+$(OBJ)/%.o: $(SRC)/%.c $(INCLUDE)/%.h
+	gcc $(FLAGS) -c $< -I $(INCLUDE) $(LIBS) -o $@
+
+$(BIN)/%: $(OBJETOS)
+	gcc $(FLAGS) $(OBJ)/*.o -I $(INCLUDE) $(LIBS) -o $@
+	cp $@ catarata
 
 clean:
-	rm bin/*
+	rm $(BIN)/main
 	rm $(OBJ)/*.o

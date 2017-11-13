@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include "../include/imagemutils.h"
 #include "../include/excecoes.h"
 
