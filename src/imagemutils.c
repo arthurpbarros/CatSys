@@ -3,11 +3,14 @@
 #include "../include/imagemutils.h"
 #include "../include/excecoes.h"
 
+/*
+ * Efetua a leitura da imagem recebendo como parâmetro o caminho onde está localizada
+ * e retorna um struct do tipo Imagem.
+ */
 Imagem abrirImagem(char *nome) {
     Imagem img;
     char aux[100];
     img.stream = fopen(nome, "r");
-    /*Verificação de erro na leitura da imagem*/
     verificaStream(img.stream);
 
     verificaFgets(fgets(aux, 100, img.stream));
@@ -34,8 +37,10 @@ Imagem abrirImagem(char *nome) {
     return img;
 }
 
+/*
+ * Auxilia a função de abrirImagem(), ficando responsável apenas pela leitura dos pixels.
+ */
 void pegarPixels(Imagem *img) {
-    /*Funcão para captar os pixeis da imagem, apartir do seu arquivo*/
     char aux[5] = "", *ptr;
     int i, j;
 
@@ -51,6 +56,9 @@ void pegarPixels(Imagem *img) {
     }
 }
 
+/*
+ * Grava uma imagem em um diretório, ambos recebidos por parâmetros.
+ */
 void gravarImagem(Imagem *img, char *nome) {
     img->stream = fopen(nome, "w");
     fprintf(img->stream, "%s\n", "P3");
@@ -69,6 +77,9 @@ void gravarImagem(Imagem *img, char *nome) {
     fclose(img->stream);
 }
 
+/*
+ * Realiza a copia de uma imagem para ser utilizada na operação de convolução.
+ */
 Imagem copiarImagem(Imagem *img) {
     Imagem copia;
     copia.tipo = img->tipo;

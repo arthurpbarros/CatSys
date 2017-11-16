@@ -1,6 +1,9 @@
 #include "../include/excecoes.h"
 #include "../include/filtroutils.h"
 
+/*
+ * Executa o programa
+ */
 int main(int argc, char *argv[]) {
     verificaArgumentos(argc, argv);
     Imagem img = abrirImagem(argv[2]);
