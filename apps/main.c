@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     img = aplicarFiltroSobel(&img);
     img = aplicarBinarizacao(&img);
     gravarImagem(&img, "ImagemProcessada.ppm");
-    /*AplicarHough(&img);*/
+    AplicarHough(&img);
     printf("Processamento concluído.\n");
     return 0;
 }

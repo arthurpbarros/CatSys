@@ -177,31 +177,23 @@ Imagem aplicarBinarizacao(Imagem *img) {
     }
     return *img;
 }
-
-int pixelValido(Imagem *img) {
-    int pValidos = 0;
-    int i, j;
-    for (i = 0; i < img->altura; i++) {
-        for (j = 0; j < img->largura; j++) {
-            if (img->pixels[i][j].r == 255) {
-                pValidos++;
-            }
-        }
-    }
-    return pValidos;
+void ExibirCirculo(Circulo *circulo){
+    printf("(%d,%d,%d) = %d\n",circulo->x,circulo->y,circulo->r,circulo->valor);
 }
-
 void AplicarHough(Imagem *img) {
     int r, t;
     int a, b;
-    int maior = -1;
+    Circulo iris;
+    iris.x = 0;
+    iris.y = 0;
+    iris.r = 0;
+    iris.valor = -1; 
     int rmax = 300, rmin = 200;
     /*int validos = pixelValido(img);*/
     int ***m;
     int i, j;
     /*FILE * f = fopen("text.txt", "w");*/
     m = calloc(img->altura, sizeof(int **));
-
     for (i = 0; i < img->altura; i++) {
         m[i] = calloc(img->largura + 1, sizeof(int *));
         for (j = 0; j < img->largura + 1; j++) {
@@ -225,14 +217,57 @@ void AplicarHough(Imagem *img) {
             }
         }
     }
-    printf("asdsad");
     for (i = 0; i < img->altura; i++) {
         for (j = 0; j < img->largura + 1; j++) {
             for (r = 0; r <= rmax - rmin; r++) {
-                if (m[i][j][r] > maior) {
-                    maior = m[i][j][r];
+                if (m[i][j][r] > iris.valor) {
+                    iris.valor = m[i][j][r];
+                    iris.r = r+rmin;
+                    iris.x = j;
+                    iris.y = i;
                 }
             }
         }
     }
+    ExibirCirculo(&iris);
+    rmin = 50,rmax = iris.r/2;
+    m = calloc(iris.r*2+1, sizeof(int **));
+    for (i = 0; i <= iris.r*2; i++) {
+        m[i] = calloc(iris.r*2, sizeof(int *));
+        for (j = 0; j <= iris.r*2; j++) {
+            m[i][j] = calloc(rmax-rmin + 1, sizeof(int));
+        }
+    }
+    Circulo pupila;
+    pupila = iris;
+    pupila.valor = -1;
+    for (i = pupila.y-pupila.r; i <= pupila.y+pupila.r; i++) {
+        for (j = pupila.x-pupila.r; j <= pupila.x+pupila.r; j++) {
+            if (img->pixels[i][j].r == 255) {
+                for (r = rmin; r <= rmax; r++) {
+                    for (t = 0; t < 360; t++) {
+                        a = abs(i - r * cos(t * PI / 180));
+                        b = abs(j - r * sin(t * PI / 180));
+                        if (a <= iris.r*2 && b <= iris.r*2) {
+                            m[a][b][r-rmin]++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    printf("oi3\n");
+    for (i = 0; i <= iris.r*2; i++) {
+        for (j = 0; j <= iris.r*2; j++) {
+            for (r = 0; r <= rmax - rmin; r++) {
+                if (m[i][j][r] > pupila.valor) {
+                    pupila.valor = m[i][j][r];
+                    pupila.r = r+rmin;
+                    pupila.x = j+iris.x-iris.r;
+                    pupila.y = i+iris.y-iris.r;
+                }
+            }
+        }
+    }
+    ExibirCirculo(&pupila);
 }
