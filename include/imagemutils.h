@@ -11,6 +11,16 @@ typedef struct _Pixel {
     int r, g, b;
 } Pixel;
 
+typedef struct _Circulo {
+    int x, y, r, valor;
+} Circulo;
+
+typedef struct _Area {
+    int xInicial, xFinal;
+    int yInicial, yFinal;
+    int rmin, rmax;
+} Area;
+
 typedef struct _Imagem {
     char *nome;
     int altura, largura, intervalo, limiar;
@@ -23,5 +33,6 @@ Imagem abrirImagem(char *nome);
 void pegarPixels(Imagem *img);
 void gravarImagem(Imagem *img, char *nome);
 Imagem copiarImagem(Imagem *img);
+Circulo encontrarCirculo(Imagem *img, Area *area);
 
 #endif /*OFTASYS_IMAGEMUTILS_H*/

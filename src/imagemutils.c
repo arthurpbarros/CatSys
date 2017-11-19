@@ -1,7 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "../include/imagemutils.h"
 #include "../include/excecoes.h"
+
+#define PI 3.141592
 
 /*
  * Efetua a leitura da imagem recebendo como parâmetro o caminho onde está localizada
@@ -97,4 +100,48 @@ Imagem copiarImagem(Imagem *img) {
         }
     }
     return copia;
+}
+
+Circulo encontrarCirculo(Imagem *img, Area *area) {
+    int x, y, a, b;
+    int r = 0, t;
+    int ***acumulador = calloc(img->altura, sizeof(int **));
+    for (x = 0; x < img->altura; x++) {
+        acumulador[x] = calloc(img->largura, sizeof(int *));
+        for (y = 0; y < img->largura; y++) {
+            acumulador[x][y] = calloc(area->rmax - area->rmin + 1, sizeof(int));
+        }
+    }
+    for (x = area->xInicial + area->rmin; x < area->xFinal - area->rmin; x++) {
+        for (y = area->yInicial + area->rmin; y < area->yFinal - area->rmin; y++) {
+            if (img->pixels[x][y].r != 255) continue;
+            for (r = area->rmin; r < area->rmax; r++) {
+                for (t = 0; t < 360; t++) {
+                    a = x - r * cos(t * PI / 180);
+                    b = y - r * sin(t * PI / 180);
+                    if (a < 0 || b < 0
+                        || a >= img->altura || b >= img->largura
+                        || a - r < 0 || b - r < 0
+                        || a + r >= img->altura || b + r >= img->largura)
+                        continue;
+                    acumulador[a][b][r - area->rmin]++;
+                }
+            }
+        }
+    }
+    Circulo c = {0, 0, 0, acumulador[0][0][0]};
+    for (x = area->xInicial + area->rmin; x < area->xFinal - area->rmin; x++) {
+        for (y = area->yInicial + area->rmin; y < area->yFinal - area->rmin; y++) {
+            for (r = area->rmin; r < area->rmax; r++) {
+                if (acumulador[x][y][r - area->rmin] > c.valor) {
+                    c.valor = acumulador[x][y][r - area->rmin];
+                    c.x = x;
+                    c.y = y;
+                    c.r = r;
+                }
+            }
+        }
+    }
+    free(acumulador);
+    return c;
 }

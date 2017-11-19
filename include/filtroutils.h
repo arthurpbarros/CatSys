@@ -15,15 +15,10 @@ typedef struct _Filtro {
     float somaKernel;
 } Filtro;
 
-typedef struct _Circulo{
-	int x,y,r,valor;	
-} Circulo;
 Imagem aplicarConvolucao(Imagem *img, Filtro *filtro);
 Filtro pegarFiltro(TipoFiltro tipo);
 Imagem aplicarFiltroCinza(Imagem *img);
 Imagem aplicarFiltroSobel(Imagem *img);
 Imagem aplicarBinarizacao(Imagem *img);
-void ExibirCirculo(Circulo *circulo);
-void AplicarHough(Imagem *img);
 
 #endif /*OFTASYS_FILTROUTILS_H*/
