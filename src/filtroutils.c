@@ -4,6 +4,25 @@
 #include "../include/excecoes.h"
 
 /*
+ * Transforma uma imagem colorida em tons de cinza.
+ */
+Imagem aplicarFiltroCinza(Imagem *img) {
+    int i, j;
+    for (i = 0; i < img->altura; i++) {
+        for (j = 0; j < img->largura; j++) {
+            img->pixels[i][j].r *= 0.3; 
+            img->pixels[i][j].g *= 0.59;
+            img->pixels[i][j].b *= 0.11;
+            int cinza = img->pixels[i][j].r + img->pixels[i][j].g + img->pixels[i][j].b;
+            img->pixels[i][j].r = cinza;
+            img->pixels[i][j].g = cinza;
+            img->pixels[i][j].b = cinza;
+        }
+    }
+    return *img;
+}
+
+/*
  * Realiza a operação de convolução de acordo com a imagem, e filtro passados como parâmetros.
  * E ao termínio da função será retornado uma Imagem com o filtro aplicado.
  */
@@ -28,6 +47,51 @@ Imagem aplicarConvolucao(Imagem *img, Filtro *filtro) {
         }
     }
     return copia;
+}
+
+/*
+ * Detecta os contornos da imagem, e calcula o limiar aceitável para cada Imagem.
+ */
+Imagem aplicarFiltroSobel(Imagem *img) {
+    Filtro sobelx = pegarFiltro(SOBELX);
+    Filtro sobely = pegarFiltro(SOBELY);
+    Imagem gx = aplicarConvolucao(img, &sobelx);
+    Imagem gy = aplicarConvolucao(img, &sobely);
+    Imagem saida = copiarImagem(img);
+    int i, j;
+    for (i = 0; i < img->altura; i++) {
+        for (j = 0; j < img->largura; j++) {
+            int x = gx.pixels[i][j].r;
+            int y = gy.pixels[i][j].r;
+            int pixel = (int) sqrt((x * x) + (y * y));
+            saida.pixels[i][j].r = pixel;
+            saida.pixels[i][j].g = pixel;
+            saida.pixels[i][j].b = pixel;
+        }
+    }
+    saida.limiar = 18;
+    return saida;
+}
+
+/*
+ * De acordo com o limiar da imagem o processo de Binarização é aplicado.
+ */
+Imagem aplicarBinarizacao(Imagem *img) {
+    int i, j;
+    for (i = 0; i < img->altura; i++) {
+        for (j = 0; j < img->largura; j++) {
+            if (img->pixels[i][j].r > img->limiar) {
+                img->pixels[i][j].r = 255;
+                img->pixels[i][j].b = 255;
+                img->pixels[i][j].g = 255;
+                continue;
+            }
+            img->pixels[i][j].r = 0;
+            img->pixels[i][j].g = 0;
+            img->pixels[i][j].b = 0;
+        }
+    }
+    return *img;
 }
 
 /*
@@ -108,68 +172,4 @@ Filtro pegarFiltro(TipoFiltro tipo) {
     }
     filtroExcecao();
     return filtro;
-}
-
-/*
- * Transforma uma imagem colorida em tons de cinza.
- */
-Imagem aplicarFiltroCinza(Imagem *img) {
-    int i, j;
-    for (i = 0; i < img->altura; i++) {
-        for (j = 0; j < img->largura; j++) {
-            img->pixels[i][j].r *= 0.3; 
-            img->pixels[i][j].g *= 0.59;
-            img->pixels[i][j].b *= 0.11;
-            int cinza = img->pixels[i][j].r + img->pixels[i][j].g + img->pixels[i][j].b;
-            img->pixels[i][j].r = cinza;
-            img->pixels[i][j].g = cinza;
-            img->pixels[i][j].b = cinza;
-        }
-    }
-    return *img;
-}
-
-/*
- * Detecta os contornos da imagem, e calcula o limiar aceitável para cada Imagem.
- */
-Imagem aplicarFiltroSobel(Imagem *img) {
-    Filtro sobelx = pegarFiltro(SOBELX);
-    Filtro sobely = pegarFiltro(SOBELY);
-    Imagem gx = aplicarConvolucao(img, &sobelx);
-    Imagem gy = aplicarConvolucao(img, &sobely);
-    Imagem saida = copiarImagem(img);
-    int i, j;
-    for (i = 0; i < img->altura; i++) {
-        for (j = 0; j < img->largura; j++) {
-            int x = gx.pixels[i][j].r;
-            int y = gy.pixels[i][j].r;
-            int pixel = (int) sqrt((x * x) + (y * y));
-            saida.pixels[i][j].r = pixel;
-            saida.pixels[i][j].g = pixel;
-            saida.pixels[i][j].b = pixel;
-        }
-    }
-    saida.limiar = 18;
-    return saida;
-}
-
-/*
- * De acordo com o limiar da imagem o processo de Binarização é aplicado.
- */
-Imagem aplicarBinarizacao(Imagem *img) {
-    int i, j;
-    for (i = 0; i < img->altura; i++) {
-        for (j = 0; j < img->largura; j++) {
-            if (img->pixels[i][j].r > img->limiar) {
-                img->pixels[i][j].r = 255;
-                img->pixels[i][j].b = 255;
-                img->pixels[i][j].g = 255;
-                continue;
-            }
-            img->pixels[i][j].r = 0;
-            img->pixels[i][j].g = 0;
-            img->pixels[i][j].b = 0;
-        }
-    }
-    return *img;
 }

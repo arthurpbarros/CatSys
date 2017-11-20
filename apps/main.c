@@ -9,8 +9,6 @@ void desenharCirculo(Imagem *img, Circulo *c)
     int dy = 1;
     int err = dx - (c->r << 1);
 
-
-
     while (x >= y)
     {
         img->pixels[c->x + x][c->y + y].r = 255;
@@ -66,12 +64,15 @@ Imagem aplicarFiltros(Imagem *img) {
 
 Imagem contornarPupila(Imagem *img, Imagem *copia,char *nome) {
     Area areaIris = {0, img->altura, 0, img->largura, 190, 210};
+    if(img->altura < 700 || img->largura < 700) {
+        areaIris.rmin = 110;
+        areaIris.rmax = 140;
+    }
     Circulo iris = encontrarCirculo(img, &areaIris);
     Area areaPupila = {iris.x - iris.r, iris.x + iris.r, iris.y - iris.r, iris.y + iris.r, 50, iris.r};
     Circulo pupila = encontrarCirculo(img, &areaPupila);
     desenharCirculo(copia, &pupila);
-    printf("%d",copia->pixels[pupila.y][pupila.x].r);
-    diagnosticar(copia,&pupila,nome);
+    /*diagnosticar(copia,&pupila,nome);*/
     return *copia;
 }
 

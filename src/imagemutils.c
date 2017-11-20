@@ -142,7 +142,6 @@ Circulo encontrarCirculo(Imagem *img, Area *area) {
             }
         }
     }
-    free(acumulador);
     return c;
 }
 
