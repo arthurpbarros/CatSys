@@ -145,3 +145,37 @@ Circulo encontrarCirculo(Imagem *img, Area *area) {
     free(acumulador);
     return c;
 }
+
+int distancia(int j,int i,Circulo *circulo){
+    int valor = (int)(sqrt(pow((j-circulo->x),2)+pow((i-circulo->y),2)));
+    return valor;
+}
+
+void diagnosticar(Imagem *img,Circulo *pupila, char *saida){
+    int i,j;
+    float brancos = 0;
+    float total = 0;
+    for(i = 0;i < img->altura;i++){
+        for(j = 0;j <= img->largura;j++){
+            if(distancia(j,i,pupila) < pupila->r){
+                if(img->pixels[i][j].r > 0.7*255 || img->pixels[i][j].r < 0.6*255){
+                    brancos++;
+                }else if(img->pixels[i][j].r == 255){
+                    printf("aviso\n");
+                }
+                total++;
+            }
+        }
+    }
+    FILE *arq;
+    arq = fopen(saida,"w");
+    float comprometimento = brancos/total;
+    if(comprometimento == 0.0){
+        fprintf(arq, "%s\n","Sem Catarata.");
+    }else{
+        fprintf(arq,"%s\n", "Com Catarata.");
+        fprintf(arq,"%.2f",comprometimento * 100);
+        fprintf(arq,"%s\n","% de Comprometimento.");
+    }
+    fclose(arq);
+}

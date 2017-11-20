@@ -34,5 +34,6 @@ void pegarPixels(Imagem *img);
 void gravarImagem(Imagem *img, char *nome);
 Imagem copiarImagem(Imagem *img);
 Circulo encontrarCirculo(Imagem *img, Area *area);
-
+int distancia(int j,int i,Circulo *circulo);
+void diagnosticar(Imagem *img,Circulo *pupila,char *saida);
 #endif /*OFTASYS_IMAGEMUTILS_H*/

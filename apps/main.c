@@ -64,12 +64,14 @@ Imagem aplicarFiltros(Imagem *img) {
     return *img;
 }
 
-Imagem contornarPupila(Imagem *img, Imagem *copia) {
+Imagem contornarPupila(Imagem *img, Imagem *copia,char *nome) {
     Area areaIris = {0, img->altura, 0, img->largura, 190, 210};
     Circulo iris = encontrarCirculo(img, &areaIris);
     Area areaPupila = {iris.x - iris.r, iris.x + iris.r, iris.y - iris.r, iris.y + iris.r, 50, iris.r};
     Circulo pupila = encontrarCirculo(img, &areaPupila);
     desenharCirculo(copia, &pupila);
+    printf("%d",copia->pixels[pupila.y][pupila.x].r);
+    diagnosticar(copia,&pupila,nome);
     return *copia;
 }
 
@@ -82,7 +84,7 @@ int main(int argc, char *argv[]) {
     Imagem copia = copiarImagem(&img);
     img = aplicarFiltros(&img);
     copia = aplicarFiltroCinza(&copia);
-    copia = contornarPupila(&img, &copia);
+    copia = contornarPupila(&img, &copia,argv[6]);   
     gravarImagem(&copia, "Contornada.ppm");
     printf("Processamento concluído.\n");
     return 0;
