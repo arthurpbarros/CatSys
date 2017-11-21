@@ -1,58 +1,6 @@
 #include "../include/excecoes.h"
 #include "../include/filtroutils.h"
 
-void desenharCirculo(Imagem *img, Circulo *c)
-{
-    int x = c->r-1;
-    int y = 0;
-    int dx = 1;
-    int dy = 1;
-    int err = dx - (c->r << 1);
-
-    while (x >= y)
-    {
-        img->pixels[c->x + x][c->y + y].r = 255;
-        img->pixels[c->x + y][c->y + x].r = 255;
-        img->pixels[c->x - y][c->y + x].r = 255;
-        img->pixels[c->x - x][c->y + y].r = 255;
-        img->pixels[c->x - x][c->y - y].r = 255;
-        img->pixels[c->x - y][c->y - x].r = 255;
-        img->pixels[c->x + y][c->y - x].r = 255;
-        img->pixels[c->x + x][c->y - y].r = 255;
-
-        img->pixels[c->x + x][c->y + y].g = 255;
-        img->pixels[c->x + y][c->y + x].g = 255;
-        img->pixels[c->x - y][c->y + x].g = 255;
-        img->pixels[c->x - x][c->y + y].g = 255;
-        img->pixels[c->x - x][c->y - y].g = 255;
-        img->pixels[c->x - y][c->y - x].g = 255;
-        img->pixels[c->x + y][c->y - x].g = 255;
-        img->pixels[c->x + x][c->y - y].g = 255;
-
-        img->pixels[c->x + x][c->y + y].b = 255;
-        img->pixels[c->x + y][c->y + x].b = 255;
-        img->pixels[c->x - y][c->y + x].b = 255;
-        img->pixels[c->x - x][c->y + y].b = 255;
-        img->pixels[c->x - x][c->y - y].b = 255;
-        img->pixels[c->x - y][c->y - x].b = 255;
-        img->pixels[c->x + y][c->y - x].b = 255;
-        img->pixels[c->x + x][c->y - y].b = 255;
-
-        if (err <= 0)
-        {
-            y++;
-            err += dy;
-            dy += 2;
-        }
-        if (err > 0)
-        {
-            x--;
-            dx += 2;
-            err += (-c->r << 1) + dx;
-        }
-    }
-}
-
 Imagem aplicarFiltros(Imagem *img) {
     *img = aplicarFiltroCinza(img);
     Filtro gaus = pegarFiltro(GAUSSIANO);
@@ -62,7 +10,7 @@ Imagem aplicarFiltros(Imagem *img) {
     return *img;
 }
 
-Imagem contornarPupila(Imagem *img, Imagem *copia,char *nome) {
+Circulo pegarPupila(Imagem *img) {
     Area areaIris = {0, img->altura, 0, img->largura, 190, 210};
     if(img->altura < 700 || img->largura < 700) {
         areaIris.rmin = 110;
@@ -71,9 +19,20 @@ Imagem contornarPupila(Imagem *img, Imagem *copia,char *nome) {
     Circulo iris = encontrarCirculo(img, &areaIris);
     Area areaPupila = {iris.x - iris.r, iris.x + iris.r, iris.y - iris.r, iris.y + iris.r, 50, iris.r};
     Circulo pupila = encontrarCirculo(img, &areaPupila);
-    desenharCirculo(copia, &pupila);
-    /*diagnosticar(copia,&pupila,nome);*/
-    return *copia;
+    return pupila;
+}
+
+void destacarPupila(Imagem *img, Area *area, Circulo *pupila) {
+    int i, j;
+    for(i = area->xInicial; i < area->xFinal; i++) {
+        for(j = area->yInicial; j < area->yFinal; j++) {
+            if(distancia(i, j, pupila) > pupila->r) {
+                img->pixels[i][j].r = 0;
+                img->pixels[i][j].g = 0;
+                img->pixels[i][j].b = 0;
+            }
+        }
+    }
 }
 
 /*
@@ -83,10 +42,15 @@ int main(int argc, char *argv[]) {
     verificaArgumentos(argc, argv);
     Imagem img = abrirImagem(argv[2]);
     Imagem copia = copiarImagem(&img);
+
     img = aplicarFiltros(&img);
     copia = aplicarFiltroCinza(&copia);
-    copia = contornarPupila(&img, &copia,argv[6]);   
-    gravarImagem(&copia, "Contornada.ppm");
+
+    Circulo pupila = pegarPupila(&img);
+
+    Area regiao = {pupila.x - pupila.r - 50, pupila.x + pupila.r + 50, pupila.y - pupila.r - 50, pupila.y + pupila.r + 50, pupila.r};
+    destacarPupila(&copia, &regiao, &pupila);
+    gravarImagem(&copia, "Contornada.ppm", &regiao);
     printf("Processamento concluído.\n");
     return 0;
 }

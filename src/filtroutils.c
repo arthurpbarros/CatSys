@@ -84,11 +84,11 @@ Imagem aplicarBinarizacao(Imagem *img) {
                 img->pixels[i][j].r = 255;
                 img->pixels[i][j].b = 255;
                 img->pixels[i][j].g = 255;
-                continue;
+            } else {
+                img->pixels[i][j].r = 0;
+                img->pixels[i][j].g = 0;
+                img->pixels[i][j].b = 0;
             }
-            img->pixels[i][j].r = 0;
-            img->pixels[i][j].g = 0;
-            img->pixels[i][j].b = 0;
         }
     }
     return *img;

@@ -62,16 +62,16 @@ void pegarPixels(Imagem *img) {
 /*
  * Grava uma imagem em um diretório, ambos recebidos por parâmetros.
  */
-void gravarImagem(Imagem *img, char *nome) {
+void gravarImagem(Imagem *img, char *nome, Area *area) {
     img->stream = fopen(nome, "w");
     fprintf(img->stream, "%s\n", "P3");
     fprintf(img->stream, "%s\n", "# CREATOR: GIMP PNM Filter Version 1.1");
-    fprintf(img->stream, "%d %d\n", img->largura, img->altura);
+    fprintf(img->stream, "%d %d\n", area->yFinal - area->yInicial, area->xFinal - area->xInicial);
     fprintf(img->stream, "%d\n", img->intervalo);
 
     int i, j;
-    for (i = 0; i < img->altura; i++) {
-        for (j = 0; j < img->largura; j++) {
+    for (i = area->xInicial; i < area->xFinal; i++) {
+        for (j = area->yInicial; j < area->yFinal; j++) {
             fprintf(img->stream, "%d\n", img->pixels[i][j].r);
             fprintf(img->stream, "%d\n", img->pixels[i][j].g);
             fprintf(img->stream, "%d\n", img->pixels[i][j].b);
@@ -114,17 +114,16 @@ Circulo encontrarCirculo(Imagem *img, Area *area) {
     }
     for (x = area->xInicial + area->rmin; x < area->xFinal - area->rmin; x++) {
         for (y = area->yInicial + area->rmin; y < area->yFinal - area->rmin; y++) {
-            if (img->pixels[x][y].r != 255) continue;
-            for (r = area->rmin; r < area->rmax; r++) {
-                for (t = 0; t < 360; t++) {
-                    a = x - r * cos(t * PI / 180);
-                    b = y - r * sin(t * PI / 180);
-                    if (a < 0 || b < 0
-                        || a >= img->altura || b >= img->largura
-                        || a - r < 0 || b - r < 0
-                        || a + r >= img->altura || b + r >= img->largura)
-                        continue;
-                    acumulador[a][b][r - area->rmin]++;
+            if (img->pixels[x][y].r == 255) {
+                for (r = area->rmin; r < area->rmax; r++) {
+                    for (t = 0; t < 360; t++) {
+                        a = x - r * cos(t * PI / 180);
+                        b = y - r * sin(t * PI / 180);
+                        if (a >= 0 && b >= 0 && a < img->altura && b < img->largura && a - r >= 0 && b - r >= 0 &&
+                            a + r < img->altura && b + r < img->largura) {
+                            acumulador[a][b][r - area->rmin]++;
+                        }
+                    }
                 }
             }
         }
@@ -145,21 +144,21 @@ Circulo encontrarCirculo(Imagem *img, Area *area) {
     return c;
 }
 
-int distancia(int j,int i,Circulo *circulo){
-    int valor = (int)(sqrt(pow((j-circulo->x),2)+pow((i-circulo->y),2)));
+int distancia(int i, int j, Circulo *circulo) {
+    int valor = (int) (sqrt(pow((i - circulo->x), 2) + pow((j - circulo->y), 2)));
     return valor;
 }
 
-void diagnosticar(Imagem *img,Circulo *pupila, char *saida){
-    int i,j;
+void diagnosticar(Imagem *img, Circulo *pupila, char *saida) {
+    int i, j;
     float brancos = 0;
     float total = 0;
-    for(i = 0;i < img->altura;i++){
-        for(j = 0;j <= img->largura;j++){
-            if(distancia(j,i,pupila) < pupila->r){
-                if(img->pixels[i][j].r > 0.7*255 || img->pixels[i][j].r < 0.6*255){
+    for (i = 0; i < img->altura; i++) {
+        for (j = 0; j <= img->largura; j++) {
+            if (distancia(j, i, pupila) < pupila->r) {
+                if (img->pixels[i][j].r > 0.7 * 255 || img->pixels[i][j].r < 0.6 * 255) {
                     brancos++;
-                }else if(img->pixels[i][j].r == 255){
+                } else if (img->pixels[i][j].r == 255) {
                     printf("aviso\n");
                 }
                 total++;
@@ -167,14 +166,14 @@ void diagnosticar(Imagem *img,Circulo *pupila, char *saida){
         }
     }
     FILE *arq;
-    arq = fopen(saida,"w");
-    float comprometimento = brancos/total;
-    if(comprometimento == 0.0){
-        fprintf(arq, "%s\n","Sem Catarata.");
-    }else{
-        fprintf(arq,"%s\n", "Com Catarata.");
-        fprintf(arq,"%.2f",comprometimento * 100);
-        fprintf(arq,"%s\n","% de Comprometimento.");
+    arq = fopen(saida, "w");
+    float comprometimento = brancos / total;
+    if (comprometimento == 0.0) {
+        fprintf(arq, "%s\n", "Sem Catarata.");
+    } else {
+        fprintf(arq, "%s\n", "Com Catarata.");
+        fprintf(arq, "%.2f", comprometimento * 100);
+        fprintf(arq, "%s\n", "% de Comprometimento.");
     }
     fclose(arq);
 }

@@ -31,9 +31,10 @@ typedef struct _Imagem {
 
 Imagem abrirImagem(char *nome);
 void pegarPixels(Imagem *img);
-void gravarImagem(Imagem *img, char *nome);
+void gravarImagem(Imagem *img, char *nome, Area *area);
 Imagem copiarImagem(Imagem *img);
 Circulo encontrarCirculo(Imagem *img, Area *area);
-int distancia(int j,int i,Circulo *circulo);
+int distancia(int i,int j,Circulo *circulo);
 void diagnosticar(Imagem *img,Circulo *pupila,char *saida);
+
 #endif /*OFTASYS_IMAGEMUTILS_H*/
