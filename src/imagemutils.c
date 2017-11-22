@@ -102,6 +102,9 @@ Imagem copiarImagem(Imagem *img) {
     return copia;
 }
 
+/*
+ * Encontra círculo na imagem a partir de uma determina área informada.
+ */
 Circulo encontrarCirculo(Imagem *img, Area *area) {
     int x, y, a, b;
     int r = 0, t;
@@ -119,6 +122,7 @@ Circulo encontrarCirculo(Imagem *img, Area *area) {
                     for (t = 0; t < 360; t++) {
                         a = x - r * cos(t * PI / 180);
                         b = y - r * sin(t * PI / 180);
+                        /* Condição para evitar pegar pixels inválidos e otimizar processamento */
                         if (a >= 0 && b >= 0 && a < img->altura && b < img->largura && a - r >= 0 && b - r >= 0 &&
                             a + r < img->altura && b + r < img->largura) {
                             acumulador[a][b][r - area->rmin]++;
@@ -128,6 +132,7 @@ Circulo encontrarCirculo(Imagem *img, Area *area) {
             }
         }
     }
+    /* Pega o maior valor da matriz acumulador */
     Circulo c = {0, 0, 0, acumulador[0][0][0]};
     for (x = area->xInicial + area->rmin; x < area->xFinal - area->rmin; x++) {
         for (y = area->yInicial + area->rmin; y < area->yFinal - area->rmin; y++) {
@@ -144,6 +149,9 @@ Circulo encontrarCirculo(Imagem *img, Area *area) {
     return c;
 }
 
+/*
+ * Calcula a distância entre dois pontos.
+ */
 int distancia(int i, int j, Circulo *circulo) {
     int valor = (int) (sqrt(pow((i - circulo->x), 2) + pow((j - circulo->y), 2)));
     return valor;
