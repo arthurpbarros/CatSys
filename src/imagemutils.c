@@ -63,6 +63,13 @@ void pegarPixels(Imagem *img) {
  * Grava uma imagem em um diretório, ambos recebidos por parâmetros.
  */
 void gravarImagem(Imagem *img, char *nome, Area *area) {
+    if(area == NULL) {
+        area = malloc(sizeof(Area));
+        area->xInicial = 0;
+        area->xFinal = img->altura;
+        area->yInicial = 0;
+        area->yFinal = img->largura;
+    }
     img->stream = fopen(nome, "w");
     fprintf(img->stream, "%s\n", "P3");
     fprintf(img->stream, "%s\n", "# CREATOR: GIMP PNM Filter Version 1.1");
@@ -103,11 +110,10 @@ Imagem copiarImagem(Imagem *img) {
 }
 
 /*
- * Encontra círculo na imagem a partir de uma determina área informada.
- */
+ * Encontra o círculo na imagem a partir de uma determinada área informada */
 Circulo encontrarCirculo(Imagem *img, Area *area) {
     int x, y, a, b;
-    int r = 0, t;
+    int r, t;
     int ***acumulador = calloc(img->altura, sizeof(int **));
     for (x = 0; x < img->altura; x++) {
         acumulador[x] = calloc(img->largura, sizeof(int *));
@@ -122,7 +128,7 @@ Circulo encontrarCirculo(Imagem *img, Area *area) {
                     for (t = 0; t < 360; t++) {
                         a = x - r * cos(t * PI / 180);
                         b = y - r * sin(t * PI / 180);
-                        /* Condição para evitar pegar pixels inválidos e otimizar processamento */
+                        /* Condição para evitar pegar pixels inválidos e otimizar o processamento */
                         if (a >= 0 && b >= 0 && a < img->altura && b < img->largura && a - r >= 0 && b - r >= 0 &&
                             a + r < img->altura && b + r < img->largura) {
                             acumulador[a][b][r - area->rmin]++;
@@ -132,8 +138,8 @@ Circulo encontrarCirculo(Imagem *img, Area *area) {
             }
         }
     }
-    /* Pega o maior valor da matriz acumulador */
     Circulo c = {0, 0, 0, acumulador[0][0][0]};
+    /* Pega o maior valor da matriz acumulador */
     for (x = area->xInicial + area->rmin; x < area->xFinal - area->rmin; x++) {
         for (y = area->yInicial + area->rmin; y < area->yFinal - area->rmin; y++) {
             for (r = area->rmin; r < area->rmax; r++) {
@@ -155,33 +161,4 @@ Circulo encontrarCirculo(Imagem *img, Area *area) {
 int distancia(int i, int j, Circulo *circulo) {
     int valor = (int) (sqrt(pow((i - circulo->x), 2) + pow((j - circulo->y), 2)));
     return valor;
-}
-
-void diagnosticar(Imagem *img, Circulo *pupila, char *saida) {
-    int i, j;
-    float brancos = 0;
-    float total = 0;
-    for (i = 0; i < img->altura; i++) {
-        for (j = 0; j <= img->largura; j++) {
-            if (distancia(j, i, pupila) < pupila->r) {
-                if (img->pixels[i][j].r > 0.7 * 255 || img->pixels[i][j].r < 0.6 * 255) {
-                    brancos++;
-                } else if (img->pixels[i][j].r == 255) {
-                    printf("aviso\n");
-                }
-                total++;
-            }
-        }
-    }
-    FILE *arq;
-    arq = fopen(saida, "w");
-    float comprometimento = brancos / total;
-    if (comprometimento == 0.0) {
-        fprintf(arq, "%s\n", "Sem Catarata.");
-    } else {
-        fprintf(arq, "%s\n", "Com Catarata.");
-        fprintf(arq, "%.2f", comprometimento * 100);
-        fprintf(arq, "%s\n", "% de Comprometimento.");
-    }
-    fclose(arq);
 }

@@ -22,7 +22,6 @@ typedef struct _Area {
 } Area;
 
 typedef struct _Imagem {
-    char *nome;
     int altura, largura, intervalo, limiar;
     FILE *stream;
     Tipo tipo;
@@ -35,6 +34,5 @@ void gravarImagem(Imagem *img, char *nome, Area *area);
 Imagem copiarImagem(Imagem *img);
 Circulo encontrarCirculo(Imagem *img, Area *area);
 int distancia(int i,int j,Circulo *circulo);
-void diagnosticar(Imagem *img,Circulo *pupila,char *saida);
 
 #endif /*OFTASYS_IMAGEMUTILS_H*/

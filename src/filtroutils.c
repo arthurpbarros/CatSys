@@ -10,7 +10,7 @@ Imagem aplicarFiltroCinza(Imagem *img) {
     int i, j;
     for (i = 0; i < img->altura; i++) {
         for (j = 0; j < img->largura; j++) {
-            img->pixels[i][j].r *= 0.3; 
+            img->pixels[i][j].r *= 0.3;
             img->pixels[i][j].g *= 0.59;
             img->pixels[i][j].b *= 0.11;
             int cinza = img->pixels[i][j].r + img->pixels[i][j].g + img->pixels[i][j].b;
