@@ -16,6 +16,7 @@ Projeto desenvolvido durante a disciplina de Introdução às Técnicas de Progr
 ## Considerações Finais
 * Identificar a pupila do globo ocular utilizando a técnica de Daugman,
 * Conversão de outros tipos de imagem para o formato PPM, como PNG e JPEG,
+
 No decorrer do projeto, acreditamos que a declaração de um struct chamado Tipo pode ser descartada, pois serviria somente para identificação de outros tipos de imagem e sua conversão. Além disso, poderíamos modularizar melhor a função principal main(),
 
 ### Como compilar o projeto
